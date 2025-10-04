@@ -12,10 +12,13 @@ export default class RaindropService {
   private client;
 
   constructor(token?: string) {
+    // Defer process.env access to constructor execution time, not module load time
+    const apiToken = token || process.env.RAINDROP_ACCESS_TOKEN;
+    
     this.client = createClient<paths>({
       baseUrl: 'https://api.raindrop.io/rest/v1',
       headers: {
-        Authorization: `Bearer ${token || process.env.RAINDROP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${apiToken}`,
       },
     });
     this.client.use({

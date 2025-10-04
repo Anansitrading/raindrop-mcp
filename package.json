@@ -1,6 +1,6 @@
 {
     "name": "@anansitrading/raindrop-mcp",
-    "version": "2.0.18",
+    "version": "2.0.19",
     "description": "MCP Server for Raindrop.io bookmark management",
     "main": "build/index.js",
     "module": "build/index.js",
@@ -21,7 +21,7 @@
         "test": "bun  --env-file .env test",
         "test:coverage": "bun test --coverage",
         "run": "bun run build/index.js",
-        "build": "esbuild src/index.ts src/server.ts --bundle --platform=node --format=esm --sourcemap --outdir=build --external:@modelcontextprotocol/* --external:express --external:axios --external:dotenv --external:openapi-fetch --external:rate-limiter-flexible --external:simple-oauth2 --external:zod --external:zod-to-json-schema --external:openai",
+        "build": "esbuild src/index.ts src/server.ts --bundle --platform=node --format=esm --sourcemap --outdir=build --external:@modelcontextprotocol/* --external:express --external:axios --external:dotenv --external:openapi-fetch --external:rate-limiter-flexible --external:simple-oauth2 --external:openai",
         "start:prod": "bun run build/index.js",
         "start:http": "bun run src/server.ts",
         "clean": "rm -rf build",
