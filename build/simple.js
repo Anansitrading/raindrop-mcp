@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-#!/usr/bin/env node
 // src/simple-server.ts
 import { config } from "dotenv";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
 config({ quiet: true });
 var TOKEN = process.env.RAINDROP_ACCESS_TOKEN;
 var BASE_URL = "https://api.raindrop.io/rest/v1";
@@ -38,22 +38,10 @@ server.registerTool(
     title: "Get Bookmarks",
     description: "Get bookmarks from a collection. Use collectionId=0 for all bookmarks, -1 for unsorted, -99 for trash",
     inputSchema: {
-      collectionId: {
-        type: "number",
-        description: "Collection ID (0=all, -1=unsorted, -99=trash)"
-      },
-      search: {
-        type: "string",
-        description: "Search query"
-      },
-      page: {
-        type: "number",
-        description: "Page number (default 0)"
-      },
-      perPage: {
-        type: "number",
-        description: "Items per page (max 50, default 25)"
-      }
+      collectionId: z.number().optional().describe("Collection ID (0=all, -1=unsorted, -99=trash)"),
+      search: z.string().optional().describe("Search query"),
+      page: z.number().optional().describe("Page number (default 0)"),
+      perPage: z.number().optional().describe("Items per page (max 50, default 25)")
     }
   },
   async (args) => {
@@ -81,10 +69,7 @@ server.registerTool(
     title: "Get Bookmark",
     description: "Get a single bookmark by ID",
     inputSchema: {
-      id: {
-        type: "number",
-        description: "Bookmark ID"
-      }
+      id: z.number().describe("Bookmark ID")
     }
   },
   async (args) => {
@@ -103,31 +88,12 @@ server.registerTool(
     title: "Create Bookmark",
     description: "Create a new bookmark",
     inputSchema: {
-      link: {
-        type: "string",
-        description: "URL to bookmark (required)"
-      },
-      title: {
-        type: "string",
-        description: "Bookmark title"
-      },
-      excerpt: {
-        type: "string",
-        description: "Bookmark description/excerpt"
-      },
-      tags: {
-        type: "array",
-        items: { type: "string" },
-        description: "Tags array"
-      },
-      collectionId: {
-        type: "number",
-        description: "Collection ID (default: -1 for unsorted)"
-      },
-      important: {
-        type: "boolean",
-        description: "Mark as favorite"
-      }
+      link: z.string().describe("URL to bookmark (required)"),
+      title: z.string().optional().describe("Bookmark title"),
+      excerpt: z.string().optional().describe("Bookmark description/excerpt"),
+      tags: z.array(z.string()).optional().describe("Tags array"),
+      collectionId: z.number().optional().describe("Collection ID (default: -1 for unsorted)"),
+      important: z.boolean().optional().describe("Mark as favorite")
     }
   },
   async (args) => {
@@ -158,35 +124,13 @@ server.registerTool(
     title: "Update Bookmark",
     description: "Update an existing bookmark",
     inputSchema: {
-      id: {
-        type: "number",
-        description: "Bookmark ID (required)"
-      },
-      link: {
-        type: "string",
-        description: "URL"
-      },
-      title: {
-        type: "string",
-        description: "Title"
-      },
-      excerpt: {
-        type: "string",
-        description: "Description"
-      },
-      tags: {
-        type: "array",
-        items: { type: "string" },
-        description: "Tags"
-      },
-      important: {
-        type: "boolean",
-        description: "Favorite status"
-      },
-      collectionId: {
-        type: "number",
-        description: "Move to collection ID"
-      }
+      id: z.number().describe("Bookmark ID (required)"),
+      link: z.string().optional().describe("URL"),
+      title: z.string().optional().describe("Title"),
+      excerpt: z.string().optional().describe("Description"),
+      tags: z.array(z.string()).optional().describe("Tags"),
+      important: z.boolean().optional().describe("Favorite status"),
+      collectionId: z.number().optional().describe("Move to collection ID")
     }
   },
   async (args) => {
@@ -215,10 +159,7 @@ server.registerTool(
     title: "Delete Bookmark",
     description: "Delete a bookmark (moves to trash unless already in trash)",
     inputSchema: {
-      id: {
-        type: "number",
-        description: "Bookmark ID"
-      }
+      id: z.number().describe("Bookmark ID")
     }
   },
   async (args) => {
@@ -239,18 +180,9 @@ server.registerTool(
     title: "Search Bookmarks",
     description: "Search all bookmarks with advanced query",
     inputSchema: {
-      query: {
-        type: "string",
-        description: "Search query (supports operators like tag:, important:, etc)"
-      },
-      page: {
-        type: "number",
-        description: "Page number"
-      },
-      perPage: {
-        type: "number",
-        description: "Results per page (max 50)"
-      }
+      query: z.string().describe("Search query (supports operators like tag:, important:, etc)"),
+      page: z.number().optional().describe("Page number"),
+      perPage: z.number().optional().describe("Results per page (max 50)")
     }
   },
   async (args) => {
