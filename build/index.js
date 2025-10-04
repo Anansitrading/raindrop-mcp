@@ -10,12 +10,12 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 // src/services/raindropmcp.service.ts
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z as z2 } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import "zod-to-json-schema";
 
 // package.json
 var package_default = {
-  name: "@adeze/raindrop-mcp",
-  version: "2.0.17",
+  name: "@anansitrading/raindrop-mcp",
+  version: "2.0.18",
   description: "MCP Server for Raindrop.io bookmark management",
   main: "build/index.js",
   module: "build/index.js",
@@ -1045,7 +1045,7 @@ var RaindropMCPService = class {
         {
           title: config2.name.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
           description: config2.description,
-          inputSchema: zodToJsonSchema(config2.inputSchema)
+          inputSchema: config2.inputSchema
         },
         this.asyncHandler(async (args, extra) => {
           const result = await config2.handler(args, { raindropService: this.raindropService, ...extra });
