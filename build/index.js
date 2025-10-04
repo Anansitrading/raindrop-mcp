@@ -15,7 +15,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 // package.json
 var package_default = {
   name: "@adeze/raindrop-mcp",
-  version: "2.0.16",
+  version: "2.0.17",
   description: "MCP Server for Raindrop.io bookmark management",
   main: "build/index.js",
   module: "build/index.js",
