@@ -9,13 +9,13 @@
  * @see StdioServerTransport
  */
 
+// CRITICAL: Load environment variables BEFORE any other imports
+// This ensures process.env is populated before any module accesses it
+import './init-env.js';
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { config } from 'dotenv';
 import { RaindropMCPService } from './services/raindropmcp.service.js';
 import { createLogger } from './utils/logger.js';
-
-config({ quiet: true }); // Load .env file quietly
 
 const logger = createLogger('mcp-stdio');
 

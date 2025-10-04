@@ -21,7 +21,7 @@
         "test": "bun  --env-file .env test",
         "test:coverage": "bun test --coverage",
         "run": "bun run build/index.js",
-        "build": "bun build --target=node --format=esm --bundle --sourcemap --outdir=build ./src/index.ts ./src/server.ts",
+        "build": "esbuild src/index.ts src/server.ts --bundle --platform=node --format=esm --sourcemap --outdir=build --external:@modelcontextprotocol/* --external:express --external:axios --external:dotenv --external:openapi-fetch --external:rate-limiter-flexible --external:simple-oauth2 --external:zod --external:zod-to-json-schema --external:openai",
         "start:prod": "bun run build/index.js",
         "start:http": "bun run src/server.ts",
         "clean": "rm -rf build",

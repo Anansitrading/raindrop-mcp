@@ -6,16 +6,18 @@
  *
  * Compare with the original HTTP server on port 3001 for differences in tool coverage and design.
  */
+
+// CRITICAL: Load environment variables BEFORE any other imports
+import './init-env.js';
+
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { config } from 'dotenv';
 import { randomUUID } from "node:crypto";
 import http from 'node:http';
 import { parse as parseUrl } from 'node:url';
 import { AuthorizationCode } from 'simple-oauth2';
 import { RaindropMCPService } from './services/raindropmcp.service.js';
 import { createLogger } from './utils/logger.js';
-config({ quiet: true }); // Load .env file
 
 const PORT = process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT) : 3002;
 const logger = createLogger('http');
