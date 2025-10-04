@@ -5,7 +5,6 @@ bun.lockb
 out
 dist
 *.tgz
-build/
 
 # code coverage
 coverage
