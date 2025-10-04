@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import pkg from '../../package.json';
 import { BookmarkInputSchema, BookmarkOutputSchema, CollectionManageInputSchema, CollectionOutputSchema, HighlightInputSchema, HighlightOutputSchema, TagInputSchema, TagOutputSchema } from "../types/raindrop-zod.schemas.js";
 import RaindropService from "./raindrop.service.js";
@@ -567,9 +568,17 @@ export class RaindropMCPService {
                 {
                     title: config.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
                     description: config.description,
-                    inputSchema: (config.inputSchema as z.ZodObject<any>).shape
+                    inputSchema: zodToJsonSchema(config.inputSchema) as any
                 },
-                this.asyncHandler(async (args: any, extra: any) => config.handler(args, { raindropService: this.raindropService, ...extra }))
+                this.asyncHandler(async (args: any, extra: any) => {
+                    const result = await config.handler(args, { raindropService: this.raindropService, ...extra });
+                    // Ensure result has content field for MCP protocol
+                    if (result && typeof result === 'object' && 'content' in result) {
+                        return result;
+                    }
+                    // Wrap non-content results in content field
+                    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+                })
             );
         }
     }
