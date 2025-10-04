@@ -1,12 +1,12 @@
 {
     "name": "@anansitrading/raindrop-mcp",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "description": "Simple, working MCP Server for Raindrop.io bookmark management",
     "main": "build/simple.js",
     "module": "build/simple.js",
     "type": "module",
     "bin": {
-        "raindrop-mcp": "./build/simple.js"
+        "raindrop-mcp": "build/simple.js"
     },
     "files": [
         "build"
