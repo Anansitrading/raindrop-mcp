@@ -12,6 +12,27 @@ if (!TOKEN) {
   console.error("ERROR: RAINDROP_ACCESS_TOKEN environment variable not set");
   process.exit(1);
 }
+function stripBOMRecursively(obj) {
+  if (typeof obj === "string") {
+    return obj.replace(/\uFEFF/g, "");
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(stripBOMRecursively);
+  }
+  if (obj && typeof obj === "object") {
+    const cleaned = {};
+    for (const [key, value] of Object.entries(obj)) {
+      cleaned[key] = stripBOMRecursively(value);
+    }
+    return cleaned;
+  }
+  return obj;
+}
+function safeStringify(obj) {
+  const cleanedObj = stripBOMRecursively(obj);
+  const jsonStr = JSON.stringify(cleanedObj, null, 2);
+  return Buffer.from(jsonStr, "utf8").toString("utf8");
+}
 async function raindropFetch(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
   const response = await fetch(url, {
@@ -55,10 +76,10 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({
+        text: safeStringify({
           count: data.count || 0,
           items: data.items || []
-        }, null, 2)
+        })
       }]
     };
   }
@@ -77,7 +98,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2)
+        text: safeStringify(data.item)
       }]
     };
   }
@@ -113,7 +134,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2)
+        text: safeStringify(data.item)
       }]
     };
   }
@@ -148,7 +169,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2)
+        text: safeStringify(data.item)
       }]
     };
   }
@@ -169,7 +190,38 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({ result: data.result || true, message: "Bookmark deleted" }, null, 2)
+        text: safeStringify({ result: data.result || true, message: "Bookmark deleted" })
+      }]
+    };
+  }
+);
+server.registerTool(
+  "create_collection",
+  {
+    title: "Create Collection",
+    description: "Create a new collection (folder) in Raindrop",
+    inputSchema: {
+      title: z.string().describe("Collection name (required)"),
+      description: z.string().optional().describe("Collection description"),
+      public: z.boolean().optional().describe("Make collection public (default: false)"),
+      view: z.string().optional().describe("View type: list, simple, grid, masonry (default: list)")
+    }
+  },
+  async (args) => {
+    const body = {
+      title: args.title
+    };
+    if (args.description) body.description = args.description;
+    if (args.public !== void 0) body.public = args.public;
+    if (args.view) body.view = args.view;
+    const data = await raindropFetch("/collection", {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+    return {
+      content: [{
+        type: "text",
+        text: safeStringify(data.item)
       }]
     };
   }
@@ -195,10 +247,10 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({
+        text: safeStringify({
           count: data.count || 0,
           items: data.items || []
-        }, null, 2)
+        })
       }]
     };
   }

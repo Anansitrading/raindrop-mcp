@@ -563,17 +563,12 @@ export class RaindropMCPService {
 
     private registerDeclarativeTools() {
         for (const config of toolConfigs) {
-            // Convert Zod object schema to the format expected by MCP SDK v1.19+
-            // The SDK expects: { fieldName: zodSchema, ... }
-            // From a z.object({ fieldName: zodSchema, ... })
-            const shape = (config.inputSchema as any).shape || {};
-            
             this.server.registerTool(
                 config.name,
                 {
                     title: config.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
                     description: config.description,
-                    inputSchema: shape
+                    inputSchema: zodToJsonSchema(config.inputSchema) as any
                 },
                 this.asyncHandler(async (args: any, extra: any) => {
                     const result = await config.handler(args, { raindropService: this.raindropService, ...extra });

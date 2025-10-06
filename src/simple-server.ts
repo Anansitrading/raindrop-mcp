@@ -19,6 +19,35 @@ if (!TOKEN) {
   process.exit(1);
 }
 
+// Recursively strip BOM (U+FEFF) from all string fields in an object
+function stripBOMRecursively(obj: any): any {
+  if (typeof obj === "string") {
+    // Remove ALL BOMs (U+FEFF) from the string
+    return obj.replace(/\uFEFF/g, "");
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(stripBOMRecursively);
+  }
+  if (obj && typeof obj === "object") {
+    const cleaned: Record<string, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      cleaned[key] = stripBOMRecursively(value);
+    }
+    return cleaned;
+  }
+  return obj;
+}
+
+// Safe stringify that removes all BOMs from nested fields
+function safeStringify(obj: any): string {
+  // First strip BOMs from all nested string fields
+  const cleanedObj = stripBOMRecursively(obj);
+  // Then stringify
+  const jsonStr = JSON.stringify(cleanedObj, null, 2);
+  // Ensure UTF-8 encoding without BOM
+  return Buffer.from(jsonStr, 'utf8').toString('utf8');
+}
+
 // Simple fetch wrapper with auth
 async function raindropFetch(endpoint: string, options: RequestInit = {}) {
   const url = `${BASE_URL}${endpoint}`;
@@ -72,10 +101,10 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({
+        text: safeStringify({
           count: data.count || 0,
           items: data.items || [],
-        }, null, 2),
+        }),
       }],
     };
   }
@@ -96,7 +125,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2),
+        text: safeStringify(data.item),
       }],
     };
   }
@@ -137,7 +166,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2),
+        text: safeStringify(data.item),
       }],
     };
   }
@@ -177,7 +206,7 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify(data.item, null, 2),
+        text: safeStringify(data.item),
       }],
     };
   }
@@ -201,7 +230,43 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({ result: data.result || true, message: "Bookmark deleted" }, null, 2),
+        text: safeStringify({ result: data.result || true, message: "Bookmark deleted" }),
+      }],
+    };
+  }
+);
+
+// Tool: Create Collection
+server.registerTool(
+  "create_collection",
+  {
+    title: "Create Collection",
+    description: "Create a new collection (folder) in Raindrop",
+    inputSchema: {
+      title: z.string().describe("Collection name (required)"),
+      description: z.string().optional().describe("Collection description"),
+      public: z.boolean().optional().describe("Make collection public (default: false)"),
+      view: z.string().optional().describe("View type: list, simple, grid, masonry (default: list)"),
+    },
+  },
+  async (args: any) => {
+    const body: any = {
+      title: args.title,
+    };
+    
+    if (args.description) body.description = args.description;
+    if (args.public !== undefined) body.public = args.public;
+    if (args.view) body.view = args.view;
+    
+    const data = await raindropFetch('/collection', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    
+    return {
+      content: [{
+        type: "text",
+        text: safeStringify(data.item),
       }],
     };
   }
@@ -232,10 +297,10 @@ server.registerTool(
     return {
       content: [{
         type: "text",
-        text: JSON.stringify({
+        text: safeStringify({
           count: data.count || 0,
           items: data.items || [],
-        }, null, 2),
+        }),
       }],
     };
   }
