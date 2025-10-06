@@ -15769,7 +15769,8 @@ var RaindropMCPService = class {
         {
           title: config2.name.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
           description: config2.description,
-          inputSchema: zodToJsonSchema(config2.inputSchema)
+          inputSchema: zodToJsonSchema(config2.inputSchema),
+          outputSchema: config2.outputSchema ? zodToJsonSchema(config2.outputSchema) : void 0
         },
         this.asyncHandler(async (args, extra) => {
           const result = await config2.handler(args, { raindropService: this.raindropService, ...extra });
